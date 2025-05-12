@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>EcoTrueque</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; background: #f1f9f2; }
+    h1 { color: #2f6f4e; }
+    .item { border: 1px solid #ccc; padding: 1em; border-radius: 10px; margin: 1em 0; background: white; }
+    .item img { max-width: 100px; display: block; margin-bottom: 0.5em; }
+    input, textarea { width: 100%; margin: 0.5em 0; padding: 0.5em; }
+    button { background: #2f6f4e; color: white; padding: 0.5em 1em; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>🌿 EcoTrueque</h1>
+  <p>Publica objetos que ya no usas y encuentra con qué intercambiarlos.</p>
+
+  <h2>Agregar nuevo objeto</h2>
+  <input id="nombre" placeholder="Nombre del objeto" />
+  <textarea id="descripcion" placeholder="Descripción"></textarea>
+  <input id="imagen" type="file" accept="image/*" />
+  <button onclick="agregarObjeto()">Publicar</button>
+
+  <h2>Objetos disponibles</h2>
+  <div id="listaObjetos"></div>
+
+  <script>
+    let objetos = JSON.parse(localStorage.getItem("objetosEco")) || [];
+
+    function render() {
+      const cont = document.getElementById("listaObjetos");
+      cont.innerHTML = "";
+      for (let obj of objetos) {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <img src="${obj.imagen}" alt="imagen"/>
+          <strong>${obj.nombre}</strong><br>
+          <p>${obj.descripcion}</p>
+        `;
+        cont.appendChild(div);
+      }
+    }
+
+    function agregarObjeto() {
+      const nombre = document.getElementById("nombre").value;
+      const descripcion = document.getElementById("descripcion").value;
+      const archivo = document.getElementById("imagen").files[0];
+
+      if (!nombre || !descripcion || !archivo) {
+        alert("Completa todos los campos.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const nuevoObjeto = {
+          nombre,
+          descripcion,
+          imagen: e.target.result
+        };
+        objetos.push(nuevoObjeto);
+        localStorage.setItem("objetosEco", JSON.stringify(objetos));
+        render();
+      };
+      reader.readAsDataURL(archivo);
+    }
+
+    render();
+  </script>
+</body>
+</html>
